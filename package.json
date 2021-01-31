@@ -4,11 +4,12 @@
   "description": "Setting up react project with wepback for development and production",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "bundlesize",
+    "lint": "eslint src/**/*.tsx",
     "build": "webpack --env NODE_ENV=production && bundlesize",
-    "build:dev": "webpack --env  NODE_ENV=analyze",
     "start": "webpack serve --env NODE_ENV=development",
-    "analyze": "source-map-explorer dist/*.js"
+    "analyze": "webpack --env NODE_ENV=analyze",
+    "bundlesize": "bundlesize"
   },
   "repository": {
     "type": "git",
@@ -27,29 +28,25 @@
     "url": "https://github.com/gkampitakis/react-webpack-testing/issues"
   },
   "homepage": "https://github.com/gkampitakis/react-webpack-testing#readme",
-  "dependencies": {
-    "@types/jest": "^26.0.20",
+  "devDependencies": {
     "@types/node": "^14.14.22",
-    "clean-webpack-plugin": "^3.0.0",
+    "@types/jest": "^26.0.20",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "webpack-manifest-plugin": "^3.0.0"
-  },
-  "devDependencies": {
+    "clean-webpack-plugin": "^3.0.0",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@types/terser-webpack-plugin": "^5.0.2",
     "@types/webpack": "^4.41.26",
     "@types/webpack-dev-server": "^3.11.1",
-    "@types/webpack-manifest-plugin": "^3.0.3",
-    "awesome-typescript-loader": "^5.2.1",
+    "@typescript-eslint/eslint-plugin": "^4.14.1",
+    "@typescript-eslint/parser": "^4.14.1",
     "bundlesize": "^0.18.1",
-    "css-loader": "^5.0.1",
-    "css-minimizer-webpack-plugin": "^1.2.0",
+    "eslint": "^7.19.0",
+    "eslint-plugin-react": "^7.22.0",
+    "eslint-plugin-react-hooks": "^4.2.0",
     "fork-ts-checker-webpack-plugin": "^6.1.0",
     "html-webpack-plugin": "^4.5.1",
-    "mini-css-extract-plugin": "^1.3.5",
-    "source-map-explorer": "^2.5.2",
     "source-map-loader": "^2.0.0",
     "terser-webpack-plugin": "^5.1.1",
     "ts-loader": "^8.0.14",
@@ -64,7 +61,7 @@
   "bundlesize": [
     {
       "path": "dist/static/js/*.js",
-      "maxSize": "50kb"
+      "maxSize": "244kb"
     }
   ]
 }

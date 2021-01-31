@@ -7,50 +7,47 @@ const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const webpack = require('webpack');
 
-
-//NOTE: css plugin
-
+//NOTE: Image loading
 
 module.exports = (env) => {
   const isProduction = env.NODE_ENV === 'production',
     isDevelopment = env.NODE_ENV === 'development',
     isAnalyze = env.NODE_ENV === 'analyze',
-    generateSourceMaps = env.GENERATE_SOURCE_MAPS === 'true';
+    generateSourceMaps = isAnalyze || env.GENERATE_SOURCE_MAPS === 'true',
+    isProductionBuild = isProduction || isAnalyze;
 
   return {
     entry: './src/components/index.tsx',
-    mode: isProduction || isAnalyze ? 'production' : isDevelopment && 'development',
+    mode: isProductionBuild ? 'production' : isDevelopment && 'development',
     bail: isProduction,
     devServer: {
       historyApiFallback: {
         index: '/',
       },
-      port: 3001,
+      port: 3000,
       disableHostCheck: true,
       hot: true,
       open: true,
       openPage: ''
     },
     devtool: isProduction
-      ? true
-        ? 'source-map'
-        : false
+      ? generateSourceMaps ? 'source-map' : false
       : isDevelopment && 'cheap-module-source-map',
     output: {
       path: path.join(__dirname, '/dist'),
-      filename: isProduction || isAnalyze
+      filename: isProductionBuild
         ? 'static/js/[name].[contenthash:8].js'
-        : isDevelopment && 'static/js/bundle.js',
+        : isDevelopment && 'static/js/[name].bundle.js',
       publicPath: '/',
       chunkFilename: isProduction
         ? 'static/js/[name].[contenthash:8].chunk.js'
-        : isDevelopment || isAnalyze && 'static/js/[name].chunk.js',
+        : (isDevelopment || isAnalyze) && 'static/js/[name].chunk.js',
     },
     resolve: {
       extensions: ['.ts', '.tsx', '.js'],
       plugins: [new TsConfigPathsPlugin()]
     },
-    module: { //TODO:
+    module: {
       rules: [
         // Disable require.ensure as it's not a standard language feature.
         { parser: { requireEnsure: false } },
@@ -60,17 +57,23 @@ module.exports = (env) => {
           options: {
             transpileOnly: true // Disables type checker since it will be done via fork-ts-checker-webpack-plugin
           },
-          exclude: ['/**/*.spec.ts', '/**/*.spec.tsx', /node_modules/]
+          exclude: ['/**/*.spec.ts', '/**/*.spec.tsx']
         },
+        {
+          test: /\.js$/,
+          enforce: 'pre',
+          use: ['source-map-loader']
+        }
       ]
     },
     optimization: {
-      minimize: isProduction || isAnalyze,
+      minimize: isProductionBuild,
       minimizer: [
         // This is only used in production mode
         new TerserPlugin({
+          parallel: true,
           terserOptions: {
-            sourceMap: isAnalyze,
+            sourceMap: generateSourceMaps,
             parse: {
               ecma: 8
             },
@@ -97,12 +100,17 @@ module.exports = (env) => {
       // Keep the runtime chunk separated to enable long term caching
       // https://twitter.com/wSokra/status/969679223278505985
       // https://github.com/facebook/create-react-app/issues/5358
-      // runtimeChunk: {
-      //   name: entrypoint => `runtime-${entrypoint.name}`
-      // }
+      runtimeChunk: {
+        name: entrypoint => `runtime-${entrypoint.name}`
+      }
     },
     plugins: [
-      new ForkTsCheckerWebpackPlugin(),
+      new ForkTsCheckerWebpackPlugin({
+        async: false,
+        eslint: {
+          files: './src/**/*.{tsx,ts,js}'
+        }
+      }),
       isAnalyze && new BundleAnalyzerPlugin(),
       new CleanWebpackPlugin(),
       // This is necessary to emit hot updates (CSS and Fast Refresh):
@@ -123,7 +131,7 @@ module.exports = (env) => {
         title: 'React Webpack Testing',
         inject: true,
         template: './src/index.html',
-        ...(isProduction || isAnalyze && {
+        ...(isProductionBuild && {
           removeComments: true,
           collapseWhitespace: true,
           removeRedundantAttributes: true,
@@ -139,7 +147,3 @@ module.exports = (env) => {
     ].filter(Boolean)
   };
 };
-
-// TODO: we want one clean production build
-// TODO: we want on development with hot reload
-// TODO: we want one production with bundle analyzing
