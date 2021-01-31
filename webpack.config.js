@@ -5,6 +5,7 @@ const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const InterpolateHtmlPlugin = require('interpolate-html-plugin');
 const webpack = require('webpack');
 
 //NOTE: Image loading
@@ -105,28 +106,6 @@ module.exports = (env) => {
       }
     },
     plugins: [
-      new ForkTsCheckerWebpackPlugin({
-        async: false,
-        eslint: {
-          files: './src/**/*.{tsx,ts,js}'
-        }
-      }),
-      isAnalyze && new BundleAnalyzerPlugin(),
-      new CleanWebpackPlugin(),
-      // This is necessary to emit hot updates (CSS and Fast Refresh):
-      isDevelopment && new webpack.HotModuleReplacementPlugin(),
-      // Makes some environment variables available to the JS code, for example:
-      // if (process.env.NODE_ENV === 'production') { ... }. See `./env.js`.
-      // It is absolutely essential that NODE_ENV is set to production
-      // during a production build.
-      // Otherwise React will be compiled in the very slow development mode.
-      new webpack.DefinePlugin(env), //TODO: here we can use dotenv
-      // Makes some environment variables available in index.html.
-      // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
-      // <link rel="icon" href="%PUBLIC_URL%/favicon.ico">
-      // It will be an empty string unless you specify "homepage"
-      // in `package.json`, in which case it will be the pathname of that URL.
-      // new InterpolateHtmlPlugin(HtmlWebpackPlugin, env.raw),
       new HtmlWebpackPlugin({
         title: 'React Webpack Testing',
         inject: true,
@@ -143,6 +122,29 @@ module.exports = (env) => {
           minifyCSS: true,
           minifyURLs: true,
         })
+      }),
+      new ForkTsCheckerWebpackPlugin({
+        async: false,
+        eslint: {
+          files: './src/**/*.{tsx,ts,js}'
+        }
+      }),
+      isAnalyze && new BundleAnalyzerPlugin(),
+      new CleanWebpackPlugin(),
+      // This is necessary to emit hot updates (CSS and Fast Refresh):
+      isDevelopment && new webpack.HotModuleReplacementPlugin(),
+      // Makes some environment variables available to the JS code, for example:
+      // It is absolutely essential that NODE_ENV is set to production
+      // during a production build.
+      // Otherwise React will be compiled in the very slow development mode.
+      new webpack.DefinePlugin({
+        'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV),
+        'process.env.SOME_VALUE': JSON.stringify(env.SOME_VALUE || 'default'),
+        'process.env.SOME_OTHER_VALUE': JSON.stringify(process.env.SOME_OTHER_VALUE || 'default'),
+      }),
+      // Makes some environment variables available in index.html.
+      new InterpolateHtmlPlugin({
+        SOME_VALUE_IN_HTML: 'some value'
       })
     ].filter(Boolean)
   };
