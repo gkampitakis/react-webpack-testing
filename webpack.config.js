@@ -18,7 +18,7 @@ module.exports = (env) => {
     isProductionBuild = isProduction || isAnalyze;
 
   return {
-    entry: './src/components/index.tsx',
+    entry: './src/index.tsx',
     mode: isProductionBuild ? 'production' : isDevelopment && 'development',
     bail: isProduction,
     devServer: {
