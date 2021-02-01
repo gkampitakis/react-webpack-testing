@@ -8,8 +8,6 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 const InterpolateHtmlPlugin = require('interpolate-html-plugin');
 const webpack = require('webpack');
 
-//NOTE: Image loading
-
 module.exports = (env) => {
   const isProduction = env.NODE_ENV === 'production',
     isDevelopment = env.NODE_ENV === 'development',
@@ -64,6 +62,13 @@ module.exports = (env) => {
           test: /\.js$/,
           enforce: 'pre',
           use: ['source-map-loader']
+        },
+        {
+          test: /\.(png|svg|jpg|jpeg|gif)$/i,
+          type: 'asset/resource',
+          generator: {
+            filename: 'static/media/[name].[hash:8].[ext]',
+          }
         }
       ]
     },

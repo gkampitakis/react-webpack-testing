@@ -21,6 +21,7 @@ export default function Router () {
           <Route path='/all-email' component={LazyComponent('/AllEmail')} />
           <Route path='/spam' component={LazyComponent('/Spam')} />
           <Route path='/trash' component={LazyComponent('/Trash')} />
+          <Route path='/image' component={LazyComponent('/Image')} />
           <Route exact path='/' component={LazyComponent('/Home')} />
           <Route component={NotFound} />
         </Switch>

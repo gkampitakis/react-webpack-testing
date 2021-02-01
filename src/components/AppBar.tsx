@@ -18,7 +18,8 @@ const MenuItems1 = [
   { label: 'Inbox', url: 'inbox' },
   { label: 'Starred', url: '/starred' },
   { label: 'Send email', url: '/send-email' },
-  { label: 'Drafts', url: '/drafts' }
+  { label: 'Drafts', url: '/drafts' },
+  { label: 'Image', url: '/image' }
 ];
 
 const MenuItems2 = [
